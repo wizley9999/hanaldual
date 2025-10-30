@@ -1,0 +1,18 @@
+name: Manual Deploy to Firebase Hosting
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run build
+        working-directory: frontend
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HANALDUAL_20C30 }}
+          projectId: hanaldual-20c30
