@@ -1,6 +1,9 @@
-import { analyzeFakePost, makeFakeKeywords } from "./example.js";
 import { scrapeAndSaveNewPosts } from "./schedulers/scape-and-save-new-posts.js";
+import { deleteOldSavedPosts } from "./schedulers/delete-old-saved-posts.js";
+import { analyzeNewSavedPost } from "./triggers/analyze-new-saved-post.js";
+import { updateKeywords } from "./triggers/update-keywords.js";
 
-export const func1 = makeFakeKeywords;
-export const func2 = scrapeAndSaveNewPosts;
-export const func3 = analyzeFakePost;
+export const deleteOldSavedPosts_scheduler = deleteOldSavedPosts;
+export const scrapeAndSaveNewPosts_scheduler = scrapeAndSaveNewPosts;
+export const analyzeNewSavedPost_trigger = analyzeNewSavedPost;
+export const updateKeywords_trigger = updateKeywords;
