@@ -3,6 +3,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import Profile from "./profile";
 import Footer from "./footer";
+import Demo from "./demo";
 
 export default function Introduction() {
   return (
@@ -58,49 +59,8 @@ export default function Introduction() {
         </div>
       </section>
 
-      <div className="px-4 w-full flex flex-col items-center">
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
-        <div>대충 Preview 같은 소개 페이지</div>
+      <div className="px-4 w-full flex flex-col items-center pt-4 pb-16">
+        <Demo />
       </div>
 
       <Footer />
