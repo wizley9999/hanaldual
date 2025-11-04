@@ -4,8 +4,13 @@ import "./index.css";
 import App from "./App.tsx";
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/firebase-messaging-sw.js");
+  await navigator.serviceWorker.register("/firebase-messaging-sw.js");
 }
+
+window.addEventListener("beforeinstallprompt", (e: any) => {
+  e.preventDefault();
+  (window as any).deferredInstallPrompt = e;
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
