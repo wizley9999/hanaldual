@@ -12,19 +12,19 @@ export default function Introduction() {
           <a href="https://blog.wizley.io" target="_blank">
             <span className="flex size-2 rounded-full bg-blue-500" />
 
-            <div className="text-xs font-medium whitespace-nowrap text-secondary-foreground">
-              더 자세한 이야기와 기술 노트는 개발자의 블로그에서 확인해보세요!
+            <div className="text-[11px] sm:text-xs font-medium whitespace-nowrap text-secondary-foreground">
+              자세한 이야기와 기술 노트는 개발자 블로그에서 확인해보세요!
             </div>
 
             <ArrowRight />
           </a>
         </Badge>
 
-        <h1 className="text-primary leading-tight max-w-2xl text-4xl font-semibold tracking-tight text-balance lg:leading-[1.1] lg:font-semibold xl:text-5xl xl:tracking-tighter break-keep">
+        <h1 className="text-primary leading-tight max-w-2xl text-3xl font-semibold tracking-tight text-balance lg:leading-[1.1] lg:font-semibold xl:text-4xl xl:tracking-tighter break-keep">
           한성대학교 공지사항 알리미
         </h1>
 
-        <p className="text-foreground max-w-3xl text-base text-balance sm:text-lg break-keep">
+        <p className="text-foreground max-w-3xl text-sm text-balance sm:text-base break-keep">
           AI가 새로운 공지사항을 실시간으로 수집하고 분석해, 중요한 소식을
           자동으로 알려드립니다.
           <br />
