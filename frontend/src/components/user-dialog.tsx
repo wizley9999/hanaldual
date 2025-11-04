@@ -43,7 +43,7 @@ export default function UserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className=" sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogTitle>Profile</DialogTitle>
         <DialogDescription className="break-keep">
           이메일 알림과 웹 푸시 알림, 그리고 계정 관련 설정을 한 곳에서 관리할
