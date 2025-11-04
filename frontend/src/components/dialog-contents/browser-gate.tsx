@@ -4,7 +4,6 @@ import { Button } from "../ui/button";
 
 export default function BrowserGate({ uid }: { uid: string }) {
   const [canRender, setCanRender] = useState(false);
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
 
   const isAndroid = /Android/.test(navigator.userAgent);
   const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
@@ -20,20 +19,17 @@ export default function BrowserGate({ uid }: { uid: string }) {
       return;
     }
 
-    window.addEventListener("beforeinstallprompt", (e: any) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-    });
-
     if (isInStandalone || !isAndroid) {
       setCanRender(true);
     }
   }, []);
 
   const handleInstall = async () => {
-    if (!installPrompt) return;
+    const installPrompt = (window as any).deferredInstallPrompt;
 
-    await installPrompt.prompt();
+    if (installPrompt) {
+      await installPrompt.prompt();
+    }
   };
 
   if (!canRender) {
