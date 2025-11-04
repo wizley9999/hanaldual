@@ -95,7 +95,7 @@ export default function InputKeywords({
             key={element}
             className="flex items-center justify-between h-fit"
           >
-            <span className="text-sm leading-none font-light line-clamp-1">
+            <span className="text-sm leading-none font-normal line-clamp-1">
               {element}
             </span>
 
