@@ -1,5 +1,6 @@
 import { onDocumentUpdated } from "firebase-functions/firestore";
 import { FieldValue } from "firebase-admin/firestore";
+import { firestore } from "../config/firebase.js";
 
 export const updateKeywords = onDocumentUpdated(
   "users/{docId}",
@@ -8,7 +9,7 @@ export const updateKeywords = onDocumentUpdated(
     const after = event.data?.after.data();
     if (!before || !after) return;
 
-    const userId = event.params.docId;
+    const uniqueId = event.params.docId;
 
     const beforeE = before.e_keywords || [];
     const afterE = after.e_keywords || [];
@@ -29,36 +30,94 @@ export const updateKeywords = onDocumentUpdated(
       return;
     }
 
-    const batch = db.batch();
+    const batch = firestore.batch();
+
+    const allAdded = [...new Set([...eAdded, ...tAdded])];
+
+    if (allAdded.length > 0) {
+      const addedRefs = allAdded.map((k) =>
+        firestore.collection("keywords").doc(k)
+      );
+
+      const addedSnaps = await firestore.getAll(...addedRefs);
+
+      for (let i = 0; i < addedRefs.length; i++) {
+        const ref = addedRefs[i];
+        const snap = addedSnaps[i];
+
+        if (!snap.exists) {
+          batch.set(
+            ref,
+            {
+              e_subscribers: [],
+              t_subscribers: [],
+            },
+            { merge: true }
+          );
+        }
+      }
+    }
 
     for (const keyword of eAdded) {
-      const ref = db.collection("keywords").doc(keyword);
-      batch.update(ref, {
-        e_subscribers: FieldValue.arrayUnion(userId),
-      });
+      const ref = firestore.collection("keywords").doc(keyword);
+      batch.set(
+        ref,
+        { e_subscribers: FieldValue.arrayUnion(uniqueId) },
+        { merge: true }
+      );
     }
 
     for (const keyword of eRemoved) {
-      const ref = db.collection("keywords").doc(keyword);
-      batch.update(ref, {
-        e_subscribers: FieldValue.arrayRemove(userId),
-      });
+      const ref = firestore.collection("keywords").doc(keyword);
+      batch.set(
+        ref,
+        { e_subscribers: FieldValue.arrayRemove(uniqueId) },
+        { merge: true }
+      );
     }
 
     for (const keyword of tAdded) {
-      const ref = db.collection("keywords").doc(keyword);
-      batch.update(ref, {
-        t_subscribers: FieldValue.arrayUnion(userId),
-      });
+      const ref = firestore.collection("keywords").doc(keyword);
+      batch.set(
+        ref,
+        { t_subscribers: FieldValue.arrayUnion(uniqueId) },
+        { merge: true }
+      );
     }
 
     for (const keyword of tRemoved) {
-      const ref = db.collection("keywords").doc(keyword);
-      batch.update(ref, {
-        t_subscribers: FieldValue.arrayRemove(userId),
-      });
+      const ref = firestore.collection("keywords").doc(keyword);
+      batch.set(
+        ref,
+        { t_subscribers: FieldValue.arrayRemove(uniqueId) },
+        { merge: true }
+      );
     }
 
     await batch.commit();
+
+    const possiblyEmptyKeywords = [...new Set([...eRemoved, ...tRemoved])];
+    if (possiblyEmptyKeywords.length > 0) {
+      const snaps = await firestore.getAll(
+        ...possiblyEmptyKeywords.map((k) =>
+          firestore.collection("keywords").doc(k)
+        )
+      );
+
+      const deletions = snaps
+        .filter((snap) => {
+          const data = snap.data();
+
+          if (!data) return false;
+
+          const eSubs = data.e_subscribers || [];
+          const tSubs = data.t_subscribers || [];
+
+          return eSubs.length === 0 && tSubs.length === 0;
+        })
+        .map((snap) => snap.ref.delete());
+
+      if (deletions.length > 0) await Promise.all(deletions);
+    }
   }
 );
