@@ -23,9 +23,11 @@ export const analyzeNewSavedPost = onDocumentCreated(
     }
 
     const analysisRef = await saveAnalyzedPost(postRef, {
-      analysisContent: response.summary,
+      content: response.summary,
+      author: postData.author,
       matchedKeywords: response.related_keywords,
       title: postData.title,
+      link: postData.sourceUrl,
     });
 
     await updateDocFields(postRef, {

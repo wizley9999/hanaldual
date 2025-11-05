@@ -36,6 +36,38 @@ export const getSavedPosts = async (options = {}) => {
   return result;
 };
 
+export const getPostAnalyses = async (options = {}) => {
+  let query = firestore.collection("postAnalyses");
+
+  if (options.filters && Array.isArray(options.filters)) {
+    // filters: [{ field: "status", op: "==", value: "pending" }, ...]
+    options.filters.forEach(({ field, op = "==", value }) => {
+      query = query.where(field, op, value);
+    });
+  }
+
+  if (options.orderBy && Array.isArray(options.orderBy)) {
+    // orderBy: [{ field: "scrapedAt", direction: "desc" }, ...]
+    options.orderBy.forEach(({ field, direction = "asc" }) => {
+      query = query.orderBy(field, direction);
+    });
+  } else {
+    query = query.orderBy("createdAt", "desc");
+  }
+
+  if (options.limit) {
+    query = query.limit(options.limit);
+  }
+
+  const snapshot = await query.get();
+
+  if (snapshot.empty) return [];
+
+  const result = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+  return result;
+};
+
 export const saveNewPosts = async (posts) => {
   const batch = firestore.batch();
 
@@ -84,9 +116,11 @@ export const saveAnalyzedPost = async (postRef, analyzedPost) => {
   const postAnalysesRef = firestore.collection("postAnalyses").doc();
 
   await postAnalysesRef.set({
-    analysisContent: analyzedPost.analysisContent,
+    content: analyzedPost.content,
     analyzedAt: Timestamp.fromDate(new Date()),
+    author: analyzedPost.author,
     dispatchedAt: null,
+    link: analyzedPost.link,
     matchedKeywords: analyzedPost.matchedKeywords,
     postRef: postRef,
     status: "pending",
