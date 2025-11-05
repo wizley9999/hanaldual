@@ -1,9 +1,13 @@
 import type { UserCredential } from "firebase/auth";
 import {
   Timestamp,
+  collection,
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
+  limit,
+  query,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
@@ -110,4 +114,31 @@ export const deleteUserDoc = async (uniqueId: string) => {
   }
 
   await deleteDoc(userDocRef);
+};
+
+export const getSavedKeywords = async (limitCount: number = 10) => {
+  const keywordsRef = collection(firestore, "keywords");
+  const q = query(keywordsRef, limit(limitCount));
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return [];
+  }
+
+  const keywords = snapshot.docs.map((docSnap) => {
+    const data = docSnap.data();
+
+    const eSubs = data.e_subscribers || [];
+    const tSubs = data.t_subscribers || [];
+
+    return {
+      keyword: docSnap.id,
+      e_subscribers: eSubs,
+      t_subscribers: tSubs,
+      count: eSubs.length + tSubs.length,
+    };
+  });
+
+  return keywords;
 };

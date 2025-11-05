@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import Profile from "./profile";
 import Footer from "./footer";
 import Demo from "./demo";
+import PopularKeywords from "./popular-keywords";
 
 export default function Introduction() {
   return (
@@ -59,8 +60,12 @@ export default function Introduction() {
         </div>
       </section>
 
-      <div className="px-4 w-full flex flex-col items-center pt-4 pb-16">
+      <div className="px-4 w-full flex flex-col items-center pt-2">
         <Demo />
+      </div>
+
+      <div className="px-4 w-full flex flex-col items-center pt-18 pb-12">
+        <PopularKeywords />
       </div>
 
       <Footer />
