@@ -134,8 +134,11 @@ export const getAllKeywords = async (limit = 1000) => {
   let lastDoc = null;
   let query = firestore.collection("keywords").orderBy("__name__").limit(limit);
 
-  while (true) {
-    const snap = await query.get();
+  let snap;
+
+  do {
+    snap = await query.get();
+
     if (snap.empty) break;
 
     snap.forEach((doc) => {
@@ -148,15 +151,12 @@ export const getAllKeywords = async (limit = 1000) => {
     });
 
     lastDoc = snap.docs[snap.docs.length - 1];
-
     query = firestore
       .collection("keywords")
       .orderBy("__name__")
       .startAfter(lastDoc)
       .limit(limit);
-
-    if (snap.size < limit) break;
-  }
+  } while (snap.size === limit);
 
   return all;
 };

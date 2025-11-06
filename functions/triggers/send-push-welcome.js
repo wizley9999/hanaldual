@@ -4,8 +4,8 @@ import { messaging } from "../config/firebase.js";
 export const sendPushWelcome = onDocumentUpdated(
   "users/{docId}",
   async (event) => {
-    const before = event.data?.before?.data();
-    const after = event.data?.after?.data();
+    const before = event.data.before.data();
+    const after = event.data.after.data();
 
     if (!before || !after) return;
 

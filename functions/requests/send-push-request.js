@@ -12,7 +12,7 @@ export const sendPushRequest = onRequest(
     ];
 
     response.responses.forEach(async (r) => {
-      if (!r.success && invalidErrors.includes(r.error?.code)) {
+      if (!r.success && invalidErrors.includes(r.error.code)) {
         res.status(401).send();
       }
     });

@@ -6,7 +6,7 @@ import { Utils } from "../config/utils.js";
 export const scrapeAndSaveNewPosts = onSchedule("*/10 * * * *", async () => {
   const savedPosts = await getSavedPosts({ limit: 30 });
   const savedUrls = savedPosts.map((post) => post.sourceUrl);
-  const latestSavedDate = savedPosts[0]?.createdAt.toDate();
+  const latestSavedDate = savedPosts[0].createdAt.toDate();
 
   const newPosts = [];
   let page = 1;

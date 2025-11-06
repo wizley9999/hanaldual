@@ -15,19 +15,15 @@ export const sendEmail = onSchedule("* */12 * * *", async () => {
   });
 
   const snapshot = await postQueryRef.get();
-
   if (snapshot.empty) return;
 
   const posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
   const keywordToPosts = new Map();
-
   for (const post of posts) {
     const keywords = post.matchedKeywords || [];
-
     for (const k of keywords) {
       if (!keywordToPosts.has(k)) keywordToPosts.set(k, []);
-
       keywordToPosts.get(k).push({
         id: post.postId,
         title: post.title,
@@ -37,26 +33,27 @@ export const sendEmail = onSchedule("* */12 * * *", async () => {
     }
   }
 
-  const userKeywordMap = new Map();
+  if (keywordToPosts.size === 0) return;
 
+  const keywordRefs = [...keywordToPosts.keys()].map((k) =>
+    firestore.collection("keywords").doc(k)
+  );
+  const keywordSnaps = await firestore.getAll(...keywordRefs);
+
+  const userKeywordMap = new Map();
   for (let i = 0; i < keywordSnaps.length; i++) {
     const snap = keywordSnaps[i];
     const keyword = [...keywordToPosts.keys()][i];
-
     if (!snap.exists) continue;
 
-    const subs = snap.data()?.e_subscribers || [];
-
+    const subs = snap.data().e_subscribers || [];
     for (const uid of subs) {
       if (!userKeywordMap.has(uid)) userKeywordMap.set(uid, new Set());
-
       userKeywordMap.get(uid).add(keyword);
     }
   }
 
-  if (userKeywordMap.size === 0) {
-    return;
-  }
+  if (userKeywordMap.size === 0) return;
 
   const userRefs = [...userKeywordMap.keys()].map((uid) =>
     firestore.collection("users").doc(uid)
@@ -66,7 +63,7 @@ export const sendEmail = onSchedule("* */12 * * *", async () => {
 
   for (const snap of userSnaps) {
     const data = snap.data();
-    if (!data?.email) continue;
+    if (!data.email) continue;
 
     const uid = snap.id;
     const keywords = [...(userKeywordMap.get(uid) || [])];

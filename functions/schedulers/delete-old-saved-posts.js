@@ -1,5 +1,6 @@
 import { onSchedule } from "firebase-functions/scheduler";
 import { deleteSavedPosts, getSavedPosts } from "../services/firestore.js";
+import { Timestamp } from "firebase-admin/firestore";
 
 export const deleteOldSavedPosts = onSchedule("0 0 * * *", async () => {
   const cutoff = new Date();

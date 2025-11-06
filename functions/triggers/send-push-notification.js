@@ -22,7 +22,7 @@ export const sendPushNotification = onDocumentCreated(
       const keyword = matchedKeywords[i];
       if (!snap.exists) continue;
 
-      const subs = snap.data()?.t_subscribers || [];
+      const subs = snap.data().t_subscribers || [];
       for (const uid of subs) {
         if (!userKeywordMap.has(uid)) userKeywordMap.set(uid, new Set());
         userKeywordMap.get(uid).add(keyword);
@@ -39,7 +39,7 @@ export const sendPushNotification = onDocumentCreated(
 
     for (const snap of userSnaps) {
       const data = snap.data();
-      const token = data?.token;
+      const token = data.token;
       const uid = snap.id;
 
       if (!token) continue;
@@ -64,7 +64,7 @@ export const sendPushNotification = onDocumentCreated(
       ];
 
       response.responses.forEach(async (r) => {
-        if (!r.success && invalidErrors.includes(r.error?.code)) {
+        if (!r.success && invalidErrors.includes(r.error.code)) {
           await firestore.collection("users").doc(uid).update({ token: null });
         }
       });
