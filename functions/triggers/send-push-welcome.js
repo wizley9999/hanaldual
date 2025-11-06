@@ -1,5 +1,5 @@
 import { onDocumentUpdated } from "firebase-functions/firestore";
-import { messaging } from "../config/firebase";
+import { messaging } from "../config/firebase.js";
 
 export const sendPushWelcome = onDocumentUpdated(
   "users/{docId}",
