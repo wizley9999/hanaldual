@@ -21,7 +21,7 @@ export const sendPushWelcome = onDocumentUpdated(
         body: "토큰이 정상적으로 등록됐어요!",
       },
       data: {
-        link: "https://hanaldual.wizley.io/redirect?to=https://hanaldual.wizley.io",
+        link: "https://hanaldual.wizley.io",
       },
     });
   }
