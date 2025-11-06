@@ -1,6 +1,7 @@
+import { onDocumentUpdated } from "firebase-functions/firestore";
 import { messaging } from "../config/firebase";
 
-export const updateKeywords = onDocumentUpdated(
+export const sendPushWelcome = onDocumentUpdated(
   "users/{docId}",
   async (event) => {
     const before = event.data?.before.data();
@@ -11,13 +12,7 @@ export const updateKeywords = onDocumentUpdated(
     const beforeToken = before.token;
     const afterToken = after.token;
 
-    if (!afterToken) {
-      return;
-    }
-
-    if (beforeToken === afterToken) {
-      return;
-    }
+    if (!afterToken || beforeToken === afterToken) return;
 
     await messaging.send({
       token: afterToken,
@@ -25,7 +20,7 @@ export const updateKeywords = onDocumentUpdated(
         title: "[환영!]와(과) 관련된 인사가 도착했어요!",
         body: "토큰이 정상적으로 등록됐어요!",
       },
-      body: {
+      data: {
         link: "https://hanaldual.wizley.io/redirect?to=https://hanaldual.wizley.io",
       },
     });
