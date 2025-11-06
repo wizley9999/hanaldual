@@ -1,10 +1,11 @@
 import { onSchedule } from "firebase-functions/scheduler";
-import { getPostAnalyses } from "../services/firestore.js";
+import { getPostAnalysesRef, updateDocFields } from "../services/firestore.js";
 import { firestore } from "../config/firebase.js";
 import { sendGrid } from "../services/sendgrid.js";
+import { Timestamp } from "firebase-admin/firestore";
 
 export const sendEmail = onSchedule("* */12 * * *", async () => {
-  const posts = await getPostAnalyses({
+  const postQueryRef = getPostAnalysesRef({
     filters: [
       {
         field: "status",
@@ -13,9 +14,11 @@ export const sendEmail = onSchedule("* */12 * * *", async () => {
     ],
   });
 
-  if (posts.length === 0) {
-    return;
-  }
+  const snapshot = await postQueryRef.get();
+
+  if (snapshot.empty) return;
+
+  const posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
   const keywordToPosts = new Map();
 
@@ -75,7 +78,15 @@ export const sendEmail = onSchedule("* */12 * * *", async () => {
     );
 
     await sendGrid(data.email, keywords, uniquePosts);
+  }
 
-    // status, dispatched update
+  // status, dispatched update
+  for (const doc of snapshot.docs) {
+    const docRef = doc.ref;
+
+    await updateDocFields(docRef, {
+      status: "dispatched",
+      dispatchedAt: Timestamp.fromDate(new Date()),
+    });
   }
 });

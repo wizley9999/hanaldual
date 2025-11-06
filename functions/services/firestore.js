@@ -36,7 +36,7 @@ export const getSavedPosts = async (options = {}) => {
   return result;
 };
 
-export const getPostAnalyses = async (options = {}) => {
+export const getPostAnalysesRef = (options = {}) => {
   let query = firestore.collection("postAnalyses");
 
   if (options.filters && Array.isArray(options.filters)) {
@@ -52,20 +52,14 @@ export const getPostAnalyses = async (options = {}) => {
       query = query.orderBy(field, direction);
     });
   } else {
-    query = query.orderBy("createdAt", "desc");
+    query = query.orderBy("analyzedAt", "desc");
   }
 
   if (options.limit) {
     query = query.limit(options.limit);
   }
 
-  const snapshot = await query.get();
-
-  if (snapshot.empty) return [];
-
-  const result = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-  return result;
+  return query;
 };
 
 export const saveNewPosts = async (posts) => {
