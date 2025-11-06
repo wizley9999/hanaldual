@@ -62,18 +62,23 @@ export const analyzePost = async (post, keywords) => {
         {
           role: "system",
           content:
-            "글과 이미지, 카테고리를 기반으로 경어체를 사용하여 요약하고 주어진 키워드 중 의미적으로 관련 있는 것만 선택 후 JSON으로 출력하세요.",
+            "글과 이미지, 카테고리를 기반으로 경어체를 사용하여 요약하고 '반드시' 주어진 [선택 가능한 키워드] 중 관련 있는 것만 선택 후 JSON으로 출력하세요.",
         },
         {
           role: "user",
           content: [
+            { type: "input_text", text: "--------" },
             { type: "input_text", text: `제목: ${post.title}` },
-            { type: "input_text", text: `본문: ${post.content}` },
-            { type: "input_text", text: `카테고리: ${post.category}` },
-            ...validImages,
             {
               type: "input_text",
-              text: `선택 가능한 키워드: ${keywords.join(", ")}`,
+              text: `본문: ${post.content.trim().replace(/\s+/g, " ")}`,
+            },
+            { type: "input_text", text: `카테고리: ${post.category}` },
+            ...validImages,
+            { type: "input_text", text: "--------" },
+            {
+              type: "input_text",
+              text: `[선택 가능한 키워드]: ${keywords.join(", ")}`,
             },
           ],
         },
