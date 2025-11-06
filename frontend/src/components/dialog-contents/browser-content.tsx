@@ -62,10 +62,14 @@ export default function BrowserContent({ uid }: { uid: string }) {
             <Label htmlFor="token">토큰</Label>
             <span
               className={`text-xs leading-none font-normal ${
-                token === currentToken ? "text-green-600" : "text-destructive"
+                currentToken !== null && token === currentToken
+                  ? "text-green-600"
+                  : "text-destructive"
               }`}
             >
-              {token === currentToken ? "(일치)" : "(불일치)"}
+              {currentToken !== null && token === currentToken
+                ? "(일치)"
+                : "(불일치)"}
             </span>
           </div>
 
