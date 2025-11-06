@@ -30,7 +30,7 @@ export const analyzeNewSavedPost = onDocumentCreated(
       author: postData.author,
       matchedKeywords: response.related_keywords,
       title: postData.title,
-      link: postData.sourceUrl,
+      link: `${postData.sourceUrl}?layout=unknown`,
     });
 
     await updateDocFields(postRef, {
