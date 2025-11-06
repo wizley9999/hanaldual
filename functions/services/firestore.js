@@ -151,6 +151,7 @@ export const getAllKeywords = async (limit = 1000) => {
     });
 
     lastDoc = snap.docs[snap.docs.length - 1];
+
     query = firestore
       .collection("keywords")
       .orderBy("__name__")

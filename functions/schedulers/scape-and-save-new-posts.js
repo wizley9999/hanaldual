@@ -5,7 +5,29 @@ import { Utils } from "../config/utils.js";
 
 export const scrapeAndSaveNewPosts = onSchedule("*/10 * * * *", async () => {
   const savedPosts = await getSavedPosts({ limit: 30 });
-  const savedUrls = savedPosts.map((post) => post.sourceUrl);
+
+  if (!savedPosts || !Array.isArray(savedPosts) || savedPosts.length === 0) {
+    const posts = await getPostList(1);
+
+    if (!posts || !posts.length) {
+      return;
+    }
+
+    const newPostDetails = [];
+
+    for (const newPost of posts) {
+      const detail = await getPostDetail(newPost.link);
+      newPostDetails.push(detail);
+    }
+
+    await saveNewPosts(newPostDetails);
+    return;
+  }
+
+  const savedUrls = savedPosts.map(function (post) {
+    return post.sourceUrl;
+  });
+
   const latestSavedDate = savedPosts[0].createdAt.toDate();
 
   const newPosts = [];
@@ -27,9 +49,7 @@ export const scrapeAndSaveNewPosts = onSchedule("*/10 * * * *", async () => {
 
     filteredPosts = posts.filter((post) => {
       const postDate = Utils.parseLocalDate(post.date);
-
       if (postDate < latestSavedDate) return false;
-
       return !savedUrls.includes(post.link);
     });
 
@@ -41,6 +61,10 @@ export const scrapeAndSaveNewPosts = onSchedule("*/10 * * * *", async () => {
     }
 
     stop = true;
+  }
+
+  if (newPosts.length === 0) {
+    return;
   }
 
   newPosts.reverse();
