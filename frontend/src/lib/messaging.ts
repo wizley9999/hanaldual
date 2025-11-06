@@ -1,5 +1,6 @@
 import { getToken, onMessage } from "firebase/messaging";
 import { messaging } from "./firebase";
+import { toast } from "sonner";
 
 export const getFCMToken = async () => {
   try {
@@ -17,6 +18,9 @@ export const getFCMToken = async () => {
 
 export function listenForegroundMessages() {
   onMessage(messaging, (payload) => {
-    console.log("Foreground message received:", payload);
+    toast.success(payload.notification?.title, {
+      description: payload.notification?.body,
+      position: "top-center",
+    });
   });
 }

@@ -47,27 +47,27 @@ export const sendPushNotification = onDocumentCreated(
       const keywords = [...(userKeywordMap.get(uid) || [])];
       const keywordStr = keywords.join(", ");
 
-      const response = await messaging.send({
-        token: token,
-        notification: {
-          title: `${keywordStr}와(과) 관련된 공지사항이 도착했어요!`,
-          body: postData.title,
-        },
-        data: {
-          link: postData.link,
-        },
-      });
+      try {
+        await messaging.send({
+          token: token,
+          notification: {
+            title: `${keywordStr}와(과) 관련된 공지사항이 도착했어요!`,
+            body: postData.title,
+          },
+          data: {
+            link: postData.link,
+          },
+        });
+      } catch (error) {
+        const invalidErrors = [
+          "messaging/invalid-registration-token",
+          "messaging/registration-token-not-registered",
+        ];
 
-      const invalidErrors = [
-        "messaging/invalid-registration-token",
-        "messaging/registration-token-not-registered",
-      ];
-
-      response.responses.forEach(async (r) => {
-        if (!r.success && invalidErrors.includes(r.error.code)) {
+        if (invalidErrors.includes(error.code)) {
           await firestore.collection("users").doc(uid).update({ token: null });
         }
-      });
+      }
     }
   }
 );

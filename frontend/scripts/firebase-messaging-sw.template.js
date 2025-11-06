@@ -10,15 +10,11 @@ firebase.initializeApp(__FIREBASE_CONFIG__);
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload
-  );
-  // Customize notification here
-  const notificationTitle = "Background Message Title";
+  const notificationTitle = payload.notification.title;
   const notificationOptions = {
-    body: "Background Message body.",
-    icon: "/firebase-logo.png",
+    body: payload.notification.body,
+    icon: "/icon192.png",
+    data: payload.data, // 링크 정보를 notification 객체에 함께 저장
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
@@ -28,18 +24,19 @@ self.addEventListener("notificationclick", (event) => {
   console.log("On notification click: ", event.notification.tag);
   event.notification.close();
 
-  // This looks to see if the current is already open and
-  // focuses if it is
+  const link =
+    event.notification.data && event.notification.data.link
+      ? event.notification.data.link
+      : "/";
+
   event.waitUntil(
     clients
-      .matchAll({
-        type: "window",
-      })
+      .matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
         for (const client of clientList) {
-          if (client.url === "/" && "focus" in client) return client.focus();
+          if (client.url === link && "focus" in client) return client.focus();
         }
-        if (clients.openWindow) return clients.openWindow("/");
+        if (clients.openWindow) return clients.openWindow(link);
       })
   );
 });
