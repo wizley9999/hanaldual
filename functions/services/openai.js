@@ -67,19 +67,19 @@ export const analyzePost = async (post, keywords) => {
         {
           role: "user",
           content: [
-            { type: "input_text", text: "--------" },
+            { type: "input_text", text: "---" },
             { type: "input_text", text: `제목: ${post.title}` },
             {
               type: "input_text",
               text: `본문: ${post.content.trim().replace(/\s+/g, " ")}`,
             },
             { type: "input_text", text: `카테고리: ${post.category}` },
-            ...validImages,
-            { type: "input_text", text: "--------" },
             {
               type: "input_text",
               text: `[선택 가능한 키워드]: ${keywords.join(", ")}`,
             },
+            { type: "input_text", text: "---" },
+            ...validImages,
           ],
         },
       ],
