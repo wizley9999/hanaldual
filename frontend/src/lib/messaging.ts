@@ -21,6 +21,10 @@ export function listenForegroundMessages() {
     toast.success(payload.notification?.title, {
       description: payload.notification?.body,
       position: "top-center",
+      action: {
+        label: "이동하기",
+        onClick: () => window.open(payload.data?.link),
+      },
     });
   });
 }
