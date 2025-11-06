@@ -6,29 +6,9 @@ import { Utils } from "../config/utils.js";
 export const scrapeAndSaveNewPosts = onSchedule("*/10 * * * *", async () => {
   const savedPosts = await getSavedPosts({ limit: 30 });
 
-  if (!savedPosts || !Array.isArray(savedPosts) || savedPosts.length === 0) {
-    const posts = await getPostList(1);
-
-    if (!posts || !posts.length) {
-      return;
-    }
-
-    const newPostDetails = [];
-
-    for (const newPost of posts) {
-      const detail = await getPostDetail(newPost.link);
-      newPostDetails.push(detail);
-    }
-
-    await saveNewPosts(newPostDetails);
-    return;
-  }
-
-  const savedUrls = savedPosts.map((post) => {
-    post.sourceUrl;
-  });
-
-  const latestSavedDate = savedPosts[0].createdAt.toDate();
+  const savedUrls = savedPosts.map((post) => post.sourceUrl);
+  const latestSavedDate =
+    savedPosts.length !== 0 ? savedPosts[0].createdAt.toDate() : null;
 
   const newPosts = [];
   let page = 1;
@@ -63,17 +43,13 @@ export const scrapeAndSaveNewPosts = onSchedule("*/10 * * * *", async () => {
     stop = true;
   }
 
-  if (newPosts.length === 0) {
-    return;
-  }
-
   newPosts.reverse();
 
   const newPostDetails = [];
 
   for (const newPost of newPosts) {
-    const postDetail = await getPostDetail(newPost.link);
-    newPostDetails.push(postDetail);
+    const detail = await getPostDetail(newPost.link);
+    newPostDetails.push(detail);
   }
 
   await saveNewPosts(newPostDetails);
