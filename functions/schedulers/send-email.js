@@ -92,7 +92,7 @@ export const sendEmail = onSchedule("* */12 * * *", async () => {
 
       try {
         await sendGrid(email, keywords, uniquePosts);
-      } catch (_) {
+      } catch (err) {
         console.error(`[sendEmail] Failed to send email to ${email}:`, err);
       }
     })

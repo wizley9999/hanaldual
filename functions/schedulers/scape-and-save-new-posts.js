@@ -24,8 +24,8 @@ export const scrapeAndSaveNewPosts = onSchedule("*/10 * * * *", async () => {
     return;
   }
 
-  const savedUrls = savedPosts.map(function (post) {
-    return post.sourceUrl;
+  const savedUrls = savedPosts.map((post) => {
+    post.sourceUrl;
   });
 
   const latestSavedDate = savedPosts[0].createdAt.toDate();
