@@ -16,11 +16,9 @@ export const sendPushWelcome = onDocumentUpdated(
 
     await messaging.send({
       token: afterToken,
-      notification: {
+      data: {
         title: "[환영!]와(과) 관련된 인사가 도착했어요!",
         body: "토큰이 정상적으로 등록됐어요!",
-      },
-      data: {
         link: "https://hanaldual.wizley.io",
       },
     });

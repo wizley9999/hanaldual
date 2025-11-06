@@ -18,8 +18,8 @@ export const getFCMToken = async () => {
 
 export function listenForegroundMessages() {
   onMessage(messaging, (payload) => {
-    toast.success(payload.notification?.title, {
-      description: payload.notification?.body,
+    toast.success(payload.data?.title, {
+      description: payload.data?.body,
       position: "top-center",
       action: {
         label: "이동하기",

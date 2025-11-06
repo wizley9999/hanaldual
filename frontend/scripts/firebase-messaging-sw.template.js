@@ -10,23 +10,24 @@ firebase.initializeApp(__FIREBASE_CONFIG__);
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
+  const title = payload.data.title;
+  const body = payload.data.body;
+
+  const options = {
+    body: body,
     icon: "/icon192.png",
-    data: payload.data, // 링크 정보를 notification 객체에 함께 저장
+    data: {
+      link: payload.data.link,
+    },
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  self.registration.showNotification(title, options);
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const link =
-    event.notification.data && event.notification.data.link
-      ? event.notification.data.link
-      : "/";
+  const link = event.notification.data.link;
 
   event.waitUntil(
     clients

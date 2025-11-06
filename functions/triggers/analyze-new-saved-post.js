@@ -7,7 +7,10 @@ import {
 } from "../services/firestore.js";
 
 export const analyzeNewSavedPost = onDocumentCreated(
-  "posts/{docId}",
+  {
+    document: "posts/{docId}",
+    memory: "1GiB",
+  },
   async (event) => {
     const postRef = event.data.ref;
     const postData = event.data.data();

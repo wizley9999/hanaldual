@@ -50,11 +50,9 @@ export const sendPushNotification = onDocumentCreated(
       try {
         await messaging.send({
           token: token,
-          notification: {
+          data: {
             title: `${keywordStr}와(과) 관련된 공지사항이 도착했어요!`,
             body: postData.title,
-          },
-          data: {
             link: postData.link,
           },
         });
