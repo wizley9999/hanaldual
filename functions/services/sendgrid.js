@@ -67,7 +67,7 @@ const getEmailHtml = (keywords, posts) => {
                     post
                   ) => `<div style="padding:16px 24px; border-bottom:1px solid #e1e4e8;">
                     <a
-                      href="https://hanaldual.wizley.io/redirect?to=${post.link}"
+                      href="${post.link}"
                       target="_blank"
                       style="text-decoration:none; color:#24292E; font-size:14px; font-weight:600;"
                     >
