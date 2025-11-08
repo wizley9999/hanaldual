@@ -1,15 +1,13 @@
 import { ArrowRight } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import Profile from "./profile";
 import Footer from "./footer";
-import Demo from "./demo";
-import PopularKeywords from "./popular-keywords";
+import AuthButton from "./auth-button";
 
 export default function Introduction() {
   return (
-    <main>
-      <section className="flex flex-col items-center gap-2 px-4 py-8 text-center md:py-16 lg:py-20 xl:gap-4">
+    <main className="flex-1 flex flex-col h-full">
+      <section className="my-auto flex flex-col items-center gap-2 px-4 py-8 text-center md:py-16 lg:py-20 xl:gap-4">
         <Badge variant="secondary" className="bg-transparent" asChild>
           <a href="https://blog.wizley.io" target="_blank">
             <span className="flex size-2 rounded-full bg-blue-500" />
@@ -27,23 +25,29 @@ export default function Introduction() {
         </h1>
 
         <p className="text-foreground max-w-3xl text-sm text-balance sm:text-base break-keep">
-          AI가 새로운 공지사항을 실시간으로 수집하고 분석해, 중요한 소식을
-          자동으로 알려드립니다.
+          AI가 새로운 공지사항을 실시간으로 수집하고 분석해, 중요한 소식을 바로
+          알려드립니다.
           <br />
           복잡한 설정 없이, 필요한 정보만 정확하게 받아보세요.
         </p>
 
         <div className="pt-2 flex gap-2">
-          <Profile
-            loading={() => <Button size="sm">바로 시작하기</Button>}
+          <AuthButton
+            spinner={() => <Button size="sm">바로 시작하기</Button>}
             signIn={({ onClick }) => (
               <Button onClick={onClick} size="sm">
                 바로 시작하기
               </Button>
             )}
-            signedIn={({ onClick }) => (
-              <Button onClick={onClick} size="sm">
-                바로 시작하기
+            authorized={({ onClick }) => (
+              <Button
+                onClick={onClick}
+                size="sm"
+                className="bg-blue-500 hover:bg-blue-400"
+              >
+                <span className="text-primary-foreground whitespace-nowrap text-sm font-medium">
+                  바로 시작하기
+                </span>
               </Button>
             )}
           />
@@ -59,14 +63,6 @@ export default function Introduction() {
           </Button>
         </div>
       </section>
-
-      <div className="px-4 w-full flex flex-col items-center pt-2">
-        <Demo />
-      </div>
-
-      <div className="px-4 w-full flex flex-col items-center pt-18 pb-12">
-        <PopularKeywords />
-      </div>
 
       <Footer />
     </main>

@@ -42,6 +42,7 @@ export default function InputKeywords({
         [field]: updated,
         lastActiveAt: Timestamp.fromDate(new Date()),
       });
+
       setInputKeyword("");
       onCompleted(result[field]);
     } catch (error: any) {
@@ -89,7 +90,7 @@ export default function InputKeywords({
         </Button>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-1 sm:gap-2 content-start h-full mb-16 overflow-y-auto">
+      <div className="grid sm:grid-cols-2 gap-1 sm:gap-2 content-start h-64 overflow-y-auto px-2">
         {keywords.map((element) => (
           <div
             key={element}
@@ -107,7 +108,7 @@ export default function InputKeywords({
               variant="ghost"
               className="text-primary"
             >
-              <BanIcon className="h-5 w-5" />
+              <BanIcon className="h-5 w-5 text-destructive" />
             </Button>
           </div>
         ))}

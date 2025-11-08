@@ -1,29 +1,37 @@
+import { getFCMToken } from "../../lib/messaging";
+import { auth } from "../../lib/firebase";
+import { getCachedUserData } from "../../lib/user-cache";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Spinner } from "../ui/spinner";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import InputKeywords from "./input-keywords";
 import RegisterToken from "./register-token";
-import { getCachedUserData } from "../../lib/user-cache";
-import { getFCMToken } from "../../lib/messaging";
-import { toast } from "sonner";
+import InputKeywords from "./input-keywords";
 
-export default function BrowserContent({ uid }: { uid: string }) {
+export default function BrowserContent() {
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState<string | null>(null);
-  const [currentToken, setCurrentToken] = useState<string | null>(null);
+
+  const [token, setToken] = useState<string | null>(null); // DB
+  const [currentToken, setCurrentToken] = useState<string | null>(null); // getFCMToken
   const [keywords, setKeywords] = useState<string[]>([]);
 
   useEffect(() => {
     let mounted = true;
 
     const fetchData = async () => {
-      const result = await getCachedUserData(uid, ["token", "t_keywords"]);
+      if (!auth.currentUser) return;
+
+      const result = await getCachedUserData(auth.currentUser.uid, [
+        "token",
+        "keywords",
+      ]);
+
       if (!mounted) return;
 
       if (result) {
         setToken(result.token);
-        setKeywords(result.t_keywords);
+        setKeywords(result.keywords);
       }
 
       try {
@@ -43,9 +51,9 @@ export default function BrowserContent({ uid }: { uid: string }) {
     return () => {
       mounted = false;
     };
-  }, [uid]);
+  }, []);
 
-  if (loading) {
+  if (loading || !auth.currentUser) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <Spinner />
@@ -54,7 +62,7 @@ export default function BrowserContent({ uid }: { uid: string }) {
   }
 
   return (
-    <div className="flex flex-col w-full h-full p-4">
+    <div className="flex flex-col w-full h-full px-4 pt-4">
       {/* Token */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
@@ -62,24 +70,22 @@ export default function BrowserContent({ uid }: { uid: string }) {
             <Label htmlFor="token">토큰</Label>
             <span
               className={`text-xs leading-none font-normal ${
-                currentToken !== null && token === currentToken
+                token && currentToken === token
                   ? "text-green-600"
                   : "text-destructive"
               }`}
             >
-              {currentToken !== null && token === currentToken
-                ? "(일치)"
-                : "(불일치)"}
+              {token && currentToken === token ? "(일치)" : "(불일치)"}
             </span>
           </div>
 
           {/* How to use */}
           <a
-            href="https://blog.wizley.io/how-to-setup-hanaldual-for-mobile"
+            href="https://blog.wizley.io/how-to-setup-hanaldual"
             target="_blank"
             className="text-xs leading-none font-normal underline underline-offset-3 text-blue-400"
           >
-            모바일 설정
+            설정 방법
           </a>
         </div>
 
@@ -94,7 +100,8 @@ export default function BrowserContent({ uid }: { uid: string }) {
           />
 
           <RegisterToken
-            uid={uid}
+            uid={auth.currentUser.uid}
+            disabled={token != null && currentToken === token}
             onCompleted={(token) => {
               setToken(token);
             }}
@@ -105,8 +112,8 @@ export default function BrowserContent({ uid }: { uid: string }) {
       {/* Keywords */}
       <div className="flex flex-col gap-3 pt-4 h-full">
         <InputKeywords
-          uid={uid}
-          field="t_keywords"
+          uid={auth.currentUser.uid}
+          field="keywords"
           keywords={keywords}
           onCompleted={(keywords) => {
             setKeywords(keywords);

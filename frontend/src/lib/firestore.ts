@@ -7,6 +7,7 @@ import {
   getDoc,
   getDocs,
   limit,
+  orderBy,
   query,
   setDoc,
   updateDoc,
@@ -31,21 +32,18 @@ export const signInAndSaveUser = async (userCredential: UserCredential) => {
     });
   } else {
     await setDoc(userDocRef, {
-      email: null,
-      e_keywords: [],
-      t_keywords: [],
-      token: null,
+      createdAt: now,
+      keywords: [],
       lastActiveAt: now,
       lastLoginAt: now,
+      received: [],
+      token: null,
     });
   }
 };
 
-export const getUserData = async (
-  uniqueId: string,
-  field: string | string[]
-) => {
-  const userDocRef = doc(firestore, "users", uniqueId);
+export const getUserData = async (userId: string, field: string | string[]) => {
+  const userDocRef = doc(firestore, "users", userId);
   const userDocSnap = await getDoc(userDocRef);
 
   if (!userDocSnap.exists()) {
@@ -68,7 +66,7 @@ export const getUserData = async (
 };
 
 export const updateUserData = async (
-  uniqueId: string,
+  userId: string,
   field: string | Record<string, any>,
   value?: any
 ) => {
@@ -77,36 +75,29 @@ export const updateUserData = async (
       throw new Error("토큰 등록 중 오류가 발생했습니다.");
     }
 
-    if (key === "email" && (val === null || val === "")) {
-      throw new Error("이메일 등록 중 오류가 발생했습니다.");
-    }
-
-    if (
-      (key === "e_keywords" || key === "t_keywords") &&
-      Array.isArray(val) &&
-      val.length > 10
-    ) {
+    if (key === "keywords" && Array.isArray(val) && val.length > 10) {
       throw new Error("키워드는 10개를 초과할 수 없습니다.");
     }
   };
 
-  const userDocRef = doc(firestore, "users", uniqueId);
+  const userDocRef = doc(firestore, "users", userId);
 
   if (typeof field === "string") {
     validate(field, value);
     await updateDoc(userDocRef, { [field]: value });
-    invalidateUserCache(uniqueId);
+    invalidateUserCache(userId);
     return { [field]: value };
   }
 
   Object.entries(field).forEach(([key, val]) => validate(key, val));
   await updateDoc(userDocRef, field);
-  invalidateUserCache(uniqueId);
+
+  invalidateUserCache(userId);
   return field;
 };
 
-export const deleteUserDoc = async (uniqueId: string) => {
-  const userDocRef = doc(firestore, "users", uniqueId);
+export const deleteUserDoc = async (userId: string) => {
+  const userDocRef = doc(firestore, "users", userId);
   const userDocSnap = await getDoc(userDocRef);
 
   if (!userDocSnap.exists()) {
@@ -118,7 +109,7 @@ export const deleteUserDoc = async (uniqueId: string) => {
 
 export const getSavedKeywords = async (limitCount: number = 10) => {
   const keywordsRef = collection(firestore, "keywords");
-  const q = query(keywordsRef, limit(limitCount));
+  const q = query(keywordsRef, orderBy("count", "desc"), limit(limitCount));
 
   const snapshot = await getDocs(q);
 
@@ -129,14 +120,13 @@ export const getSavedKeywords = async (limitCount: number = 10) => {
   const keywords = snapshot.docs.map((docSnap) => {
     const data = docSnap.data();
 
-    const eSubs = data.e_subscribers || [];
-    const tSubs = data.t_subscribers || [];
+    const subs = data.subscribers;
+    const count = data.count;
 
     return {
       keyword: docSnap.id,
-      e_subscribers: eSubs,
-      t_subscribers: tSubs,
-      count: eSubs.length + tSubs.length,
+      subscribers: subs,
+      count: count,
     };
   });
 

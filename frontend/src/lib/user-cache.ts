@@ -7,13 +7,14 @@ const userCache = new Map<
     timestamp: number;
   }
 >();
+
 const CACHE_TTL = 1000 * 60 * 5;
 
 export const getCachedUserData = async (
-  uniqueId: string,
+  userId: string,
   field: string | string[]
 ) => {
-  const cached = userCache.get(uniqueId);
+  const cached = userCache.get(userId);
   const now = Date.now();
 
   if (cached && now - cached.timestamp < CACHE_TTL) {
@@ -21,14 +22,13 @@ export const getCachedUserData = async (
   }
 
   if (!cached) {
-    const freshData = await getUserData(uniqueId, [
-      "email",
-      "e_keywords",
+    const freshData = await getUserData(userId, [
+      "keywords",
       "token",
-      "t_keywords",
       "lastActiveAt",
     ]);
-    userCache.set(uniqueId, { data: freshData, timestamp: now });
+
+    userCache.set(userId, { data: freshData, timestamp: now });
 
     if (typeof field === "string") {
       return { [field]: freshData[field] };
@@ -43,7 +43,7 @@ export const getCachedUserData = async (
     return result;
   }
 
-  const freshData = await getUserData(uniqueId, field);
+  const freshData = await getUserData(userId, field);
 
   if (typeof field === "string") {
     cached.data[field] = freshData[field];
@@ -54,7 +54,7 @@ export const getCachedUserData = async (
   }
 
   cached.timestamp = now;
-  userCache.set(uniqueId, cached);
+  userCache.set(userId, cached);
   return filterFields(cached.data, field);
 };
 
@@ -66,6 +66,6 @@ function filterFields(data: Record<string, any>, field: string | string[]) {
   return result;
 }
 
-export const invalidateUserCache = (uniqueId: string) => {
-  userCache.delete(uniqueId);
+export const invalidateUserCache = (userId: string) => {
+  userCache.delete(userId);
 };

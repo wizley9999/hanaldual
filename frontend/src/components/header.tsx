@@ -2,14 +2,13 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import hanaldualLogo from "../assets/hanaldual.svg";
 import githubLogo from "../assets/github.svg";
-import Profile from "./profile";
-import { UserIcon } from "lucide-react";
 import { Spinner } from "./ui/spinner";
+import AuthButton from "./auth-button";
 
 export default function Header() {
   return (
     <header className="sticky top-0 h-14 w-full bg-background">
-      <div className="w-full h-full px-6 flex justify-between items-center">
+      <div className="max-w-6xl mx-auto w-full h-full px-6 flex justify-between items-center">
         <a href="/" className="flex items-center gap-2.5 py-0.5">
           <img src={hanaldualLogo} alt="Hanaldual logo" />
 
@@ -28,9 +27,9 @@ export default function Header() {
             <Separator orientation="vertical" />
           </div>
 
-          {/* Login */}
-          <Profile
-            loading={() => (
+          {/* Auth */}
+          <AuthButton
+            spinner={() => (
               <div className="w-9 h-9 flex items-center justify-center">
                 <Spinner />
               </div>
@@ -42,9 +41,15 @@ export default function Header() {
                 </span>
               </Button>
             )}
-            signedIn={({ onClick }) => (
-              <Button onClick={onClick} variant="ghost" size="icon">
-                <UserIcon />
+            authorized={({ onClick }) => (
+              <Button
+                onClick={onClick}
+                size="sm"
+                className="bg-blue-500 hover:bg-blue-400"
+              >
+                <span className="text-primary-foreground whitespace-nowrap text-sm font-medium">
+                  시작하기
+                </span>
               </Button>
             )}
           />

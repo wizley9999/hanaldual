@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import BrowserContent from "./browser-content";
 import { Button } from "../ui/button";
+import BrowserContent from "./browser-content";
 
-export default function BrowserGate({ uid }: { uid: string }) {
+export default function BrowserGate() {
   const [canRender, setCanRender] = useState(false);
 
   const isAndroid = /Android/.test(navigator.userAgent);
@@ -42,6 +42,15 @@ export default function BrowserGate({ uid }: { uid: string }) {
 
             <span className="pt-2">설치가 되지 않을 경우</span>
             <span>수동으로 '홈 화면에 추가'를 해주세요.</span>
+
+            {/* How to use */}
+            <a
+              href="https://blog.wizley.io/how-to-setup-hanaldual"
+              target="_blank"
+              className="text-xs leading-none font-normal underline underline-offset-3 text-blue-400 pt-4"
+            >
+              설정 방법을 모르겠다면?
+            </a>
           </div>
 
           {isAndroid ? (
@@ -56,5 +65,5 @@ export default function BrowserGate({ uid }: { uid: string }) {
     );
   }
 
-  return <BrowserContent uid={uid} />;
+  return <BrowserContent />;
 }

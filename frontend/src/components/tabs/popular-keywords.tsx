@@ -4,8 +4,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "./ui/chart";
-import { getSavedKeywords } from "../lib/firestore";
+} from "../ui/chart";
+import { getSavedKeywords } from "../../lib/firestore";
 import {
   Bar,
   BarChart,
@@ -14,13 +14,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Spinner } from "./ui/spinner";
+import { Spinner } from "../ui/spinner";
+import { Label } from "../ui/label";
 
 export default function PopularKeywords() {
   const chartConfig = {
     count: {
       label: "등록된 수",
-      color: "var(--chart-2)",
     },
     label: {
       color: "var(--background)",
@@ -43,7 +43,11 @@ export default function PopularKeywords() {
   }, []);
 
   if (loading) {
-    return <Spinner />;
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   if (chartData.length === 0) {
@@ -51,12 +55,10 @@ export default function PopularKeywords() {
   }
 
   return (
-    <>
-      <h1 className="text-primary leading-tight max-w-2xl text-2xl font-semibold tracking-tight text-balance lg:leading-[1.1] lg:font-semibold xl:text-3xl xl:tracking-tighter break-keep">
-        인기 키워드
-      </h1>
+    <div className="flex flex-col w-full h-full p-4 gap-3">
+      <Label htmlFor="uid">인기 키워드</Label>
 
-      <ChartContainer config={chartConfig} className="w-full max-w-2xl pt-8">
+      <ChartContainer config={chartConfig} className="h-full">
         <BarChart
           accessibilityLayer
           data={chartData}
@@ -84,7 +86,7 @@ export default function PopularKeywords() {
           <Bar
             dataKey="count"
             layout="vertical"
-            fill="var(--color-chart-3)"
+            fill="var(--color-muted-foreground)"
             radius={4}
           >
             <LabelList
@@ -97,13 +99,13 @@ export default function PopularKeywords() {
             <LabelList
               dataKey="count"
               position="right"
-              offset={8}
+              offset={2}
               className="fill-foreground"
-              fontSize={12}
+              fontSize={11}
             />
           </Bar>
         </BarChart>
       </ChartContainer>
-    </>
+    </div>
   );
 }

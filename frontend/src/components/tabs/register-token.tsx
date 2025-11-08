@@ -8,24 +8,26 @@ import { updateUserData } from "../../lib/firestore";
 
 export default function RegisterToken({
   uid,
+  disabled,
   onCompleted,
 }: {
   uid: string;
+  disabled: boolean;
   onCompleted: (token: string) => void;
 }) {
   const [isRegistering, setIsRegistering] = useState(false);
 
   return (
     <Button
-      variant="secondary"
+      variant={disabled ? "secondary" : "default"}
       className="rounded-l-none border border-l-0"
-      disabled={isRegistering}
+      disabled={disabled || isRegistering}
       onClick={async () => {
         setIsRegistering(true);
 
         try {
-          const token = await getFCMToken();
-          const result = await updateUserData(uid, "token", token);
+          const currentToken = await getFCMToken();
+          const result = await updateUserData(uid, "token", currentToken);
           onCompleted(result.token);
         } catch (error: any) {
           toast.error(error.message, {
