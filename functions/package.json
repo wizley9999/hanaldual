@@ -14,7 +14,6 @@
   },
   "main": "index.js",
   "dependencies": {
-    "@sendgrid/mail": "^8.1.6",
     "axios": "^1.12.2",
     "cheerio": "^1.1.2",
     "dotenv": "^17.2.3",

@@ -16,7 +16,8 @@ messaging.onBackgroundMessage((payload) => {
   const options = {
     body: body,
     data: {
-      link: payload.data.link,
+      post: payload.data.post,
+      userId: payload.data.userId,
     },
   };
 
@@ -26,16 +27,28 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const link = event.notification.data.link;
+  const postPath = event.notification.data.post;
+  const userId = event.notification.data.userId;
+
+  if (!postPath || !userId) return;
+
+  const targetUrl = `${self.location.origin}${postPath}`;
 
   event.waitUntil(
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
         for (const client of clientList) {
-          if (client.url === link && "focus" in client) return client.focus();
+          if (client.url === targetUrl && "focus" in client)
+            return client.focus();
         }
-        if (clients.openWindow) return clients.openWindow(link);
+        if (clients.openWindow) return clients.openWindow(targetUrl);
       })
   );
+
+  fetch("__CLOUD_FUNCTIONS_URL__/updateLastActive_request", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId }),
+  });
 });

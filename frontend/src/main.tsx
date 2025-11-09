@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
 
         <Route path="my" element={<My />} />
 
-        <Route path="post">
+        <Route path="posts">
           <Route path=":postId" element={<Post />} />
         </Route>
       </Routes>

@@ -1,6 +1,7 @@
 import "dotenv/config";
 
-export const ENV = {
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+export const Env = {
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? "",
+  REGION: process.env.FUNCTION_REGION ?? "asia-northeast3",
+  DEFAULT_TIMEOUT: Number(process.env.DEFAULT_TIMEOUT) || 30000,
 };

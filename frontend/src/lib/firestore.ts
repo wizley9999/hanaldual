@@ -126,7 +126,7 @@ export const getSavedKeywords = async (limitCount: number = 10) => {
     return {
       keyword: docSnap.id,
       subscribers: subs,
-      count: count,
+      count,
     };
   });
 

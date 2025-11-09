@@ -2,10 +2,11 @@ import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 import { setGlobalOptions } from "firebase-functions";
+import { Env } from "./env.js";
 
 initializeApp();
 
-setGlobalOptions({ region: "asia-northeast3" });
+setGlobalOptions({ region: Env.REGION });
 
-export const firestore = getFirestore();
-export const messaging = getMessaging();
+export const db = getFirestore();
+export const fcm = getMessaging();

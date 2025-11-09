@@ -1,96 +1,72 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { URLS } from "../config/urls.js";
+import { Url } from "../config/url.js";
+import { Env } from "../config/env.js";
+import { Logger } from "../core/logger.js";
+import { Util } from "../core/util.js";
 
-export const getPostList = async (page) => {
-  const baseUrl = URLS.base;
-  const pageUrl = URLS.page;
+const http = axios.create({
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  timeout: Env.DEFAULT_TIMEOUT,
+});
 
-  const { data: html } = await axios.post(
-    pageUrl,
-    { page: page },
-    { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-  );
+export const ScrapService = {
+  async getPostList(page = 1) {
+    try {
+      const { data } = await http.post(Url.list, { page });
 
-  const $ = cheerio.load(html);
+      const $ = cheerio.load(data);
 
-  const results = [];
+      return $("table.board-table.horizon1 > tbody > tr")
+        .map((_, tr) => {
+          const $tr = $(tr);
 
-  $("table.board-table.horizon1 > tbody > tr").each((_, tr) => {
-    const $tr = $(tr);
+          if ($tr.hasClass("notice") || $tr.hasClass("blind")) return null;
 
-    // class="notice || blind"
-    if ($tr.hasClass("notice") || $tr.hasClass("blind")) return;
+          return {
+            author: $tr.find("td.td-write").text().trim(),
+            date: $tr.find("td.td-date").text().trim(),
+            link: `${Url.base}${$tr.find("td.td-subject > a").attr("href")}`,
+          };
+        })
+        .get()
+        .filter(Boolean);
+    } catch (e) {
+      Logger.error("Scraping post list failed", e);
+      return [];
+    }
+  },
 
-    // td.td-write
-    const author = $tr.find("td.td-write").text().trim();
+  async getPostDetail(url) {
+    try {
+      const { data } = await http.get(url);
+      const $ = cheerio.load(data);
 
-    // td.td-date
-    const date = $tr.find("td.td-date").text().trim();
+      const title = $("h2.view-title").text().trim();
+      const category = $("dl.cate > dd").text().trim();
+      const createdAt = $("dl.write > dd").text().trim();
+      const author = $("dl.writer > dd").text().trim();
+      const content = $("div.view-con").text().trim();
+      const images = $("div.view-con img")
+        .map((_, img) => $(img).attr("src"))
+        .get();
 
-    // td.td-subject > a
-    const aTag = $tr.find("td.td-subject > a");
-    const href = aTag.attr("href");
+      const hasAttachments = $("div.view-file span.no-file").length === 0;
 
-    results.push({
-      author: author,
-      date: date,
-      link: `${baseUrl}${href}`,
-    });
-  });
-
-  return results;
-};
-
-export const getPostDetail = async (url) => {
-  const { data: html } = await axios.get(url);
-
-  const $ = cheerio.load(html);
-
-  const $boardInfo = $("div.board-view-info");
-
-  const title = $boardInfo.find("div.view-info > h2.view-title").text().trim();
-
-  const $detailInfo = $boardInfo.find("div.view-detail > div.view-util");
-
-  const category = $detailInfo.find("dl.cate > dd").text().trim();
-  const createdAt = $detailInfo.find("dl.write > dd").text().trim();
-  const author = $detailInfo.find("dl.writer > dd").text().trim();
-
-  const $content = $("div.view-con");
-
-  const content = $content.text().trim();
-
-  const images = [];
-  $content.find("img").each((_, img) => {
-    const src = $(img).attr("src");
-    images.push(src);
-  });
-
-  const $insert = $("div.view-file > dl.row > dd.insert");
-
-  let hasAttachments = false;
-
-  if ($insert.find("ul").length > 0) {
-    hasAttachments = true;
-  }
-
-  if ($insert.find("span.no-file").length > 0) {
-    hasAttachments = false;
-  }
-
-  const sourceUrl = url;
-  const scrapedAt = new Date();
-
-  return {
-    title,
-    category,
-    createdAt,
-    author,
-    content,
-    images,
-    hasAttachments,
-    sourceUrl,
-    scrapedAt,
-  };
+      return {
+        title,
+        category,
+        createdAt: Util.parseLocalDate(createdAt),
+        author,
+        content,
+        images,
+        hasAttachments,
+        sourceUrl: url,
+        scrapedAt: new Date(),
+      };
+    } catch (e) {
+      Logger.error("Scraping post detail failed", e);
+      return null;
+    }
+  },
 };

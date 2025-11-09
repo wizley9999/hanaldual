@@ -20,4 +20,9 @@ swCode = swCode.replace(
   })
 );
 
+swCode = swCode.replace(
+  "__CLOUD_FUNCTIONS_URL__",
+  process.env.VITE_CLOUD_FUNCTIONS_URL
+);
+
 fs.writeFileSync(outPath, swCode);

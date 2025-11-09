@@ -1,163 +1,134 @@
-import { firestore } from "../config/firebase.js";
-import { Timestamp } from "firebase-admin/firestore";
-import { Utils } from "../config/utils.js";
+import { db } from "../config/firebase.js";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
+
+const Collections = {
+  POSTS: "posts",
+  USERS: "users",
+  KEYWORDS: "keywords",
+  ANALYSES: "postAnalyses",
+};
 
 const BATCH_LIMIT = 500;
 
-export const getSavedPosts = async (options = {}) => {
-  let query = firestore.collection("posts");
+export const FirestoreService = {
+  async query(collection, { filters = [], orderBy = [], limit } = {}) {
+    let ref = db.collection(collection);
 
-  if (options.filters && Array.isArray(options.filters)) {
-    // filters: [{ field: "status", op: "==", value: "pending" }, ...]
-    options.filters.forEach(({ field, op = "==", value }) => {
-      query = query.where(field, op, value);
-    });
-  }
-
-  if (options.orderBy && Array.isArray(options.orderBy)) {
-    // orderBy: [{ field: "scrapedAt", direction: "desc" }, ...]
-    options.orderBy.forEach(({ field, direction = "asc" }) => {
-      query = query.orderBy(field, direction);
-    });
-  } else {
-    query = query.orderBy("scrapedAt", "desc");
-  }
-
-  if (options.limit) {
-    query = query.limit(options.limit);
-  }
-
-  const snapshot = await query.get();
-
-  if (snapshot.empty) return [];
-
-  const result = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-  return result;
-};
-
-export const getPostAnalysesRef = (options = {}) => {
-  let query = firestore.collection("postAnalyses");
-
-  if (options.filters && Array.isArray(options.filters)) {
-    // filters: [{ field: "status", op: "==", value: "pending" }, ...]
-    options.filters.forEach(({ field, op = "==", value }) => {
-      query = query.where(field, op, value);
-    });
-  }
-
-  if (options.orderBy && Array.isArray(options.orderBy)) {
-    // orderBy: [{ field: "scrapedAt", direction: "desc" }, ...]
-    options.orderBy.forEach(({ field, direction = "asc" }) => {
-      query = query.orderBy(field, direction);
-    });
-  } else {
-    query = query.orderBy("analyzedAt", "desc");
-  }
-
-  if (options.limit) {
-    query = query.limit(options.limit);
-  }
-
-  return query;
-};
-
-export const saveNewPosts = async (posts) => {
-  const batch = firestore.batch();
-
-  const postsRef = firestore.collection("posts");
-
-  posts.forEach((post) => {
-    const ref = postsRef.doc();
-
-    batch.set(ref, {
-      analysisRef: null,
-      author: post.author,
-      category: post.category,
-      content: post.content,
-      createdAt: Timestamp.fromDate(Utils.parseLocalDate(post.createdAt)),
-      hasAttachments: post.hasAttachments,
-      imageUrls: post.images,
-      scrapedAt: Timestamp.fromDate(post.scrapedAt),
-      sourceUrl: post.sourceUrl,
-      status: "pending",
-      title: post.title,
-    });
-  });
-
-  await batch.commit();
-};
-
-export const deleteSavedPosts = async (posts) => {
-  if (!Array.isArray(posts) || posts.length === 0) return;
-
-  const postsRef = firestore.collection("posts");
-
-  for (let i = 0; i < posts.length; i += BATCH_LIMIT) {
-    const slice = posts.slice(i, i + BATCH_LIMIT);
-    const batch = firestore.batch();
-
-    slice.forEach((post) => {
-      const ref = postsRef.doc(post.id);
-      batch.delete(ref);
+    filters.forEach(({ field, op = "==", value }) => {
+      ref = ref.where(field, op, value);
     });
 
-    await batch.commit();
-  }
-};
+    orderBy.forEach(({ field, direction = "asc" }) => {
+      ref = ref.orderBy(field, direction);
+    });
 
-export const saveAnalyzedPost = async (postRef, analyzedPost) => {
-  const postAnalysesRef = firestore.collection("postAnalyses").doc();
+    if (limit) ref = ref.limit(limit);
 
-  await postAnalysesRef.set({
-    content: analyzedPost.content,
-    analyzedAt: Timestamp.fromDate(new Date()),
-    author: analyzedPost.author,
-    dispatchedAt: null,
-    link: analyzedPost.link,
-    matchedKeywords: analyzedPost.matchedKeywords,
-    postRef: postRef,
-    status: "pending",
-    title: analyzedPost.title,
-  });
+    const snapshot = await ref.get();
 
-  return postAnalysesRef;
-};
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  },
 
-export const updateDocFields = async (ref, fields = {}) => {
-  await ref.update(fields);
-};
+  async savePosts(posts) {
+    const batch = db.batch();
 
-export const getAllKeywords = async (limit = 1000) => {
-  const all = [];
+    const ref = db.collection(Collections.POSTS);
 
-  let lastDoc = null;
-  let query = firestore.collection("keywords").orderBy("__name__").limit(limit);
+    posts.forEach((p) => {
+      const doc = ref.doc();
 
-  let snap;
-
-  do {
-    snap = await query.get();
-
-    if (snap.empty) break;
-
-    snap.forEach((doc) => {
-      const data = doc.data();
-      all.push({
-        keyword: doc.id,
-        e_subscribers: data.e_subscribers || [],
-        t_subscribers: data.t_subscribers || [],
+      batch.set(doc, {
+        ...p,
+        createdAt: Timestamp.fromDate(p.createdAt),
+        scrapedAt: Timestamp.fromDate(p.scrapedAt),
+        status: "pending",
       });
     });
 
-    lastDoc = snap.docs[snap.docs.length - 1];
+    await batch.commit();
+  },
 
-    query = firestore
-      .collection("keywords")
-      .orderBy("__name__")
-      .startAfter(lastDoc)
-      .limit(limit);
-  } while (snap.size === limit);
+  async saveAnalysis(analysis, post, postRef) {
+    const ref = db.collection(Collections.ANALYSES).doc();
 
-  return all;
+    await ref.set({
+      content: analysis.summary,
+      analyzedAt: Timestamp.fromDate(analysis.analyzedAt),
+      dispatchedAt: null,
+      matchedKeywords: analysis.related_keywords,
+      title: post.title,
+      link: `${post.sourceUrl}?layout=unknown`,
+      postRef: postRef,
+      status: "pending",
+    });
+  },
+
+  async update(ref, data) {
+    return ref.update(data);
+  },
+
+  async deleteBatch(collection, ids) {
+    const batch = db.batch();
+
+    ids.forEach((id) => batch.delete(db.collection(collection).doc(id)));
+
+    await batch.commit();
+  },
+
+  async getKeywords() {
+    const result = [];
+
+    let lastDoc = null;
+
+    do {
+      const query = lastDoc
+        ? db
+            .collection(Collections.KEYWORDS)
+            .orderBy("__name__")
+            .startAfter(lastDoc)
+            .limit(BATCH_LIMIT)
+        : db
+            .collection(Collections.KEYWORDS)
+            .orderBy("__name__")
+            .limit(BATCH_LIMIT);
+
+      const snap = await query.get();
+
+      if (snap.empty) break;
+
+      snap.forEach((doc) =>
+        result.push({
+          keyword: doc.id,
+          subscribers: doc.data().subscribers || [],
+          count: doc.data().count || 0,
+        })
+      );
+
+      lastDoc = snap.docs[snap.docs.length - 1];
+    } while (lastDoc);
+
+    return result;
+  },
+
+  async appendUserReceived(uid, data) {
+    const ref = db.collection(Collections.USERS).doc(uid);
+
+    const docSnap = await ref.get();
+    const userData = docSnap.data() || {};
+    const currentReceived = userData.received || [];
+
+    const newItem = {
+      ...data,
+      createdAt: Timestamp.now(),
+    };
+    const updatedArray = [...currentReceived, newItem];
+
+    updatedArray.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
+
+    const limitedArray = updatedArray.slice(0, 10);
+
+    await ref.update({
+      received: limitedArray,
+    });
+  },
 };

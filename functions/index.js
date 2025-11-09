@@ -1,17 +1,21 @@
-import { scrapeAndSaveNewPosts } from "./schedulers/scape-and-save-new-posts.js";
-import { deleteOldSavedPosts } from "./schedulers/delete-old-saved-posts.js";
-import { analyzeNewSavedPost } from "./triggers/analyze-new-saved-post.js";
-import { updateKeywords } from "./triggers/update-keywords.js";
-import { sendPushRequest } from "./requests/send-push-request.js";
-import { sendEmail } from "./schedulers/send-email.js";
-import { sendPushNotification } from "./triggers/send-push-notification.js";
-import { sendPushWelcome } from "./triggers/send-push-welcome.js";
+import { sendPushReq } from "./functions/http/send-push-req.js";
+import { updateLastActive } from "./functions/http/update-last-active.js";
 
-export const sendPushReqeust_request = sendPushRequest;
-export const deleteOldSavedPosts_scheduler = deleteOldSavedPosts;
-export const scrapeAndSaveNewPosts_scheduler = scrapeAndSaveNewPosts;
-export const snedEmail_scheduler = sendEmail;
-export const analyzeNewSavedPost_trigger = analyzeNewSavedPost;
-export const sendPushNotification_trigger = sendPushNotification;
-export const sendPushWelcome_trigger = sendPushWelcome;
-export const updateKeywords_trigger = updateKeywords;
+import { deleteOldPosts } from "./functions/schedulers/delete-old-posts.js";
+import { scrapAndSave } from "./functions/schedulers/scrap-and-save.js";
+
+import { analyzePost } from "./functions/triggers/analyze-post.js";
+import { deleteKeyword } from "./functions/triggers/delete-keyword.js";
+import { sendPush } from "./functions/triggers/send-push.js";
+import { updateUser } from "./functions/triggers/update-user.js";
+
+export const sendPushReq_request = sendPushReq;
+export const updateLastActive_request = updateLastActive;
+
+export const deleteOldPosts_scheduler = deleteOldPosts;
+export const scrapAndSave_scheduler = scrapAndSave;
+
+export const analyzePost_trigger = analyzePost;
+export const deleteKeyword_trigger = deleteKeyword;
+export const sendPush_trigger = sendPush;
+export const updateUser_trigger = updateUser;

@@ -1,4 +1,4 @@
-export const Utils = {
+export const Util = {
   parseLocalDate: (dateString) => {
     const parts = dateString.split(/[-./]/).map(Number);
     const [year, month, day] = parts;

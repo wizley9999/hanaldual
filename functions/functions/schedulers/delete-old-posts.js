@@ -1,12 +1,12 @@
 import { onSchedule } from "firebase-functions/scheduler";
-import { deleteSavedPosts, getSavedPosts } from "../services/firestore.js";
 import { Timestamp } from "firebase-admin/firestore";
+import { FirestoreService } from "../../services/firestore.js";
 
-export const deleteOldSavedPosts = onSchedule("0 0 * * *", async () => {
+export const deleteOldPosts = onSchedule("0 0 * * *", async () => {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 30);
 
-  const toBeDeleted = await getSavedPosts({
+  const toBeDeleted = await FirestoreService.query("posts", {
     filters: [
       {
         field: "createdAt",
@@ -16,5 +16,8 @@ export const deleteOldSavedPosts = onSchedule("0 0 * * *", async () => {
     ],
   });
 
-  await deleteSavedPosts(toBeDeleted);
+  await FirestoreService.deleteBatch(
+    "posts",
+    toBeDeleted.map((data) => data.id)
+  );
 });
