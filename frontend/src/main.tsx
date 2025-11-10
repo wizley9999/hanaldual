@@ -24,7 +24,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="my" element={<My />} />
 
         <Route path="posts">
-          <Route path=":postId" element={<Post />} />
+          <Route path=":analysisId" element={<Post />} />
         </Route>
       </Routes>
     </BrowserRouter>

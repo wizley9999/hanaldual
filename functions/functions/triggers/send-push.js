@@ -6,6 +6,7 @@ import { Timestamp } from "firebase-admin/firestore";
 export const sendPush = onDocumentCreated(
   "postAnalyses/{docId}",
   async (event) => {
+    const docId = event.params.docId;
     const post = event.data.data();
     const matched = post.matchedKeywords || [];
     if (matched.length === 0) return;
@@ -58,7 +59,7 @@ export const sendPush = onDocumentCreated(
       const msgData = {
         title: post.title,
         body: `${post.content.slice(0, 80)} - [${keywordStr}]`,
-        post: post.postRef,
+        post: docId,
         userId: uid,
       };
 

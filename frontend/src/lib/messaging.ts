@@ -9,7 +9,7 @@ export const getFCMToken = async () => {
     });
 
     return token;
-  } catch (_) {
+  } catch {
     throw new Error(
       "토큰을 가져올 수 없습니다. 알림 권한이 설정되어 있는지 확인해주세요."
     );

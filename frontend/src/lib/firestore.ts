@@ -132,3 +132,14 @@ export const getSavedKeywords = async (limitCount: number = 10) => {
 
   return keywords;
 };
+
+export const getAnalysisDocData = async (docId: string) => {
+  const analysisDocRef = doc(firestore, "postAnalyses", docId);
+  const analysisDocSnap = await getDoc(analysisDocRef);
+
+  if (!analysisDocSnap.exists()) {
+    throw new Error("No analysis snapshot");
+  }
+
+  return analysisDocSnap.data();
+};
