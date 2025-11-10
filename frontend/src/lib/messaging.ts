@@ -24,26 +24,13 @@ export function listenForegroundMessages() {
       action: {
         label: "이동하기",
         onClick: () => {
-          if (!payload.data?.post) {
+          if (!payload.data?.link) {
             return;
           }
 
-          window.open(payload.data.post);
+          window.open(payload.data.link);
         },
       },
     });
-
-    if (!payload.data?.userId) {
-      return;
-    }
-
-    fetch(
-      `${import.meta.env.VITE_CLOUD_FUNCTIONS_URL}/updateLastActive_request`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: payload.data.userId }),
-      }
-    );
   });
 }

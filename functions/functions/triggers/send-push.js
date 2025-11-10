@@ -59,8 +59,7 @@ export const sendPush = onDocumentCreated(
       const msgData = {
         title: post.title,
         body: `${post.content.slice(0, 80)} - [${keywordStr}]`,
-        post: docId,
-        userId: uid,
+        link: `/posts/${docId}`,
       };
 
       messages.push({
