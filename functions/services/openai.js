@@ -77,7 +77,7 @@ export const OpenAIService = {
           type: "input_image",
           image_url: `data:${mime};base64,${base64}`,
         };
-      } catch {
+      } catch (_) {
         return null;
       }
     });

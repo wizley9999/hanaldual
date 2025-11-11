@@ -3,7 +3,7 @@ import { fcm } from "../../config/firebase.js";
 import { Env } from "../../config/env.js";
 
 export const sendPushReq = onRequest(async (req, res) => {
-  const { password, ...body } = req.body ?? {};
+  const { password, ...body } = req.body || {};
 
   if (password !== Env.HTTP_PASS) {
     return res.status(401).send();

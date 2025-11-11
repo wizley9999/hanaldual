@@ -1,5 +1,5 @@
 import { db } from "../config/firebase.js";
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 
 const Collections = {
   POSTS: "posts",
