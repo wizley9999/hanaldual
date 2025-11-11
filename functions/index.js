@@ -1,5 +1,4 @@
 import { sendPushReq } from "./functions/http/send-push-req.js";
-import { updateLastActive } from "./functions/http/update-last-active.js";
 
 import { deleteOldPosts } from "./functions/schedulers/delete-old-posts.js";
 import { scrapAndSave } from "./functions/schedulers/scrap-and-save.js";
@@ -10,7 +9,6 @@ import { sendPush } from "./functions/triggers/send-push.js";
 import { updateUser } from "./functions/triggers/update-user.js";
 
 export const sendPushReq_request = sendPushReq;
-export const updateLastActive_request = updateLastActive;
 
 export const deleteOldPosts_scheduler = deleteOldPosts;
 export const scrapAndSave_scheduler = scrapAndSave;
