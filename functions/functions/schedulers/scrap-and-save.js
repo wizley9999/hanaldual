@@ -28,8 +28,6 @@ export const scrapAndSave = onSchedule("*/10 * * * *", async () => {
 
     if (!posts.length) break;
 
-    let filteredPosts;
-
     if (!latestDate) {
       newPosts.push(...posts.slice(0, 10));
       stop = true;
@@ -37,7 +35,7 @@ export const scrapAndSave = onSchedule("*/10 * * * *", async () => {
       continue;
     }
 
-    filteredPosts = posts.filter((post) => {
+    const filteredPosts = posts.filter((post) => {
       const postDate = Util.parseLocalDate(post.date);
 
       if (postDate < latestDate) return false;

@@ -4,15 +4,19 @@ import { FirestoreService } from "../../services/firestore.js";
 import { Timestamp } from "firebase-admin/firestore";
 
 export const sendPush = onDocumentCreated(
-  "postAnalyses/{docId}",
+  {
+    document: "postAnalyses/{docId}",
+    memory: "1GiB",
+  },
   async (event) => {
     const docId = event.params.docId;
     const post = event.data.data();
     const matched = post.matchedKeywords || [];
     if (matched.length === 0) return;
 
-    const keywordRefs = matched.map((k) => db.collection("keywords").doc(k));
-    const keywordSnaps = await db.getAll(...keywordRefs);
+    const keywordSnaps = await Promise.all(
+      matched.map((keyword) => db.collection("keywords").doc(keyword).get())
+    );
 
     const userMap = {};
 
@@ -36,14 +40,18 @@ export const sendPush = onDocumentCreated(
     const uids = Object.keys(userMap);
     if (uids.length === 0) return;
 
-    const userRefs = uids.map((uid) => db.collection("users").doc(uid));
-    const userSnaps = await db.getAll(...userRefs);
+    const userSnaps = await Promise.all(
+      uids.map((uid) => db.collection("users").doc(uid).get())
+    );
 
     const messages = [];
     const tokenToUid = {};
 
     for (let i = 0; i < userSnaps.length; i++) {
       const snap = userSnaps[i];
+
+      if (!snap.exists) continue;
+
       const uid = uids[i];
       const userData = snap.data();
 
@@ -66,11 +74,15 @@ export const sendPush = onDocumentCreated(
         token: token,
         data: msgData,
       });
-
-      await FirestoreService.appendUserReceived(uid, msgData);
     }
 
     if (messages.length === 0) return;
+
+    await Promise.all(
+      messages.map((m) =>
+        FirestoreService.appendUserReceived(tokenToUid[m.token], m.data)
+      )
+    );
 
     const invalidUids = [];
 

@@ -53,6 +53,15 @@ export const OpenAIService = {
 
       const parsed = JSON.parse(res.output_text);
 
+      if (
+        !parsed ||
+        typeof parsed.summary !== "string" ||
+        !Array.isArray(parsed.related_keywords) ||
+        parsed.related_keywords.some((kw) => typeof kw !== "string")
+      ) {
+        throw new Error("Invalid JSON format");
+      }
+
       return { ...parsed, analyzedAt: new Date() };
     } catch (e) {
       Logger.error("OpenAI API error", e);
