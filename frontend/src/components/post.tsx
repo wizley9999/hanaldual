@@ -1,10 +1,11 @@
 import { useParams } from "react-router";
 import { Toaster } from "./ui/sonner";
 import { useEffect, useState } from "react";
-import type { DocumentData } from "firebase/firestore";
-import { getAnalysisDocData } from "@/lib/firestore";
+import { Timestamp, type DocumentData } from "firebase/firestore";
+import { getAnalysisDocData, updateUserData } from "@/lib/firestore";
 import { Spinner } from "./ui/spinner";
 import SummaryDialog from "./summary-dialog";
+import { auth } from "@/lib/firebase";
 
 export default function Post() {
   const { analysisId } = useParams();
@@ -29,7 +30,20 @@ export default function Post() {
       }
     };
 
+    const updateLastActive = async () => {
+      if (!auth.currentUser) {
+        return;
+      }
+
+      await updateUserData(
+        auth.currentUser.uid,
+        "lastActiveAt",
+        Timestamp.fromDate(new Date())
+      );
+    };
+
     fetchData();
+    updateLastActive();
   }, []);
 
   if (loading) {

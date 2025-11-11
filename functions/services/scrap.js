@@ -7,7 +7,7 @@ import { Util } from "../core/util.js";
 
 const http = axios.create({
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  timeout: Env.DEFAULT_TIMEOUT,
+  timeout: Env.AXIOS_TIMEOUT,
 });
 
 export const ScrapService = {

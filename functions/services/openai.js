@@ -65,7 +65,7 @@ export const OpenAIService = {
       try {
         const res = await axios.get(url, {
           responseType: "arraybuffer",
-          timeout: Env.DEFAULT_TIMEOUT,
+          timeout: Env.AXIOS_TIMEOUT,
           validateStatus: (status) => status >= 200 && status < 400,
         });
 

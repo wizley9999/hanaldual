@@ -1,7 +1,7 @@
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
-import { connectAuthEmulator, getAuth } from "firebase/auth";
-import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth"; // connectAuthEmulator
+import { getFirestore } from "firebase/firestore"; // connectFirestoreEmulator
 import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 
 export const analytics = getAnalytics(app);
 export const firestore = getFirestore(app);
-connectFirestoreEmulator(firestore, "127.0.0.1", 8080);
+// connectFirestoreEmulator(firestore, "127.0.0.1", 8080);
 export const auth = getAuth(app);
-connectAuthEmulator(auth, "http://127.0.0.1:9099");
+// connectAuthEmulator(auth, "http://127.0.0.1:9099");
 export const messaging = getMessaging(app);
