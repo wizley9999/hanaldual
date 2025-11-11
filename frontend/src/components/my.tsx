@@ -44,7 +44,7 @@ export default function My() {
 
   return (
     <>
-      <div className="bg-muted h-dvh flex flex-col gap-6 min-h-dvh items-center justify-center p-4">
+      <div className="bg-muted flex flex-col gap-6 min-h-dvh items-center justify-center p-4">
         <a href="/" className="flex gap-2 items-center">
           <img
             src={hanaldualLogo}

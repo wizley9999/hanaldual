@@ -34,33 +34,31 @@ export default function BrowserGate() {
 
   if (!canRender) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="flex flex-col items-center justify-center gap-8">
-          <div className="flex flex-col gap-1 items-center justify-center text-xs font-normal text-muted-foreground px-4 break-keep text-center">
-            <span>모바일에서는 앱 설치 후</span>
-            <span>푸시 알림을 받을 수 있습니다.</span>
+      <div className="flex flex-col w-full h-full items-center justify-center gap-8">
+        <div className="flex flex-col gap-1 items-center justify-center text-xs font-normal text-muted-foreground px-4 break-keep text-center">
+          <span>모바일에서는 앱 설치 후</span>
+          <span>푸시 알림을 받을 수 있습니다.</span>
 
-            <span className="pt-2">설치가 되지 않을 경우</span>
-            <span>수동으로 '홈 화면에 추가'를 해주세요.</span>
+          <span className="pt-2">설치가 되지 않을 경우</span>
+          <span>수동으로 '홈 화면에 추가'를 해주세요.</span>
 
-            {/* How to use */}
-            <a
-              href="https://blog.wizley.io/how-to-setup-hanaldual"
-              target="_blank"
-              className="text-xs leading-none font-normal underline underline-offset-3 text-blue-400 pt-4"
-            >
-              설정 방법을 모르겠다면?
-            </a>
-          </div>
-
-          {isAndroid ? (
-            <Button onClick={handleInstall} size="sm">
-              설치하기
-            </Button>
-          ) : (
-            <></>
-          )}
+          {/* How to use */}
+          <a
+            href="https://blog.wizley.io/how-to-setup-hanaldual"
+            target="_blank"
+            className="text-xs leading-none font-normal underline underline-offset-3 text-blue-400 pt-4"
+          >
+            설정 방법을 모르겠다면?
+          </a>
         </div>
+
+        {isAndroid ? (
+          <Button onClick={handleInstall} size="sm">
+            설치하기
+          </Button>
+        ) : (
+          <></>
+        )}
       </div>
     );
   }

@@ -58,7 +58,7 @@ export default function PopularKeywords() {
     <div className="flex flex-col w-full h-full p-4 gap-3">
       <Label htmlFor="uid">인기 키워드</Label>
 
-      <ChartContainer config={chartConfig} className="h-full">
+      <ChartContainer config={chartConfig} className="h-full w-full">
         <BarChart
           accessibilityLayer
           data={chartData}

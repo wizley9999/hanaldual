@@ -45,7 +45,7 @@ export default function User() {
           ))}
         </TabsList>
 
-        <Card className="flex w-full h-150">
+        <Card className="w-full h-150">
           <CardHeader className="text-center">
             <CardTitle className="text-xl">Welcome back</CardTitle>
             <CardDescription className="break-keep">
