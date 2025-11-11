@@ -21,5 +21,20 @@
       "protocol": "mailto",
       "url": "%s"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot320.png",
+      "sizes": "320x320",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "hanaldual"
+    },
+    {
+      "src": "/screenshot320.png",
+      "sizes": "320x320",
+      "type": "image/png",
+      "label": "hanaldual"
+    }
   ]
 }
