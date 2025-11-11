@@ -1,6 +1,6 @@
 # 한알두알
 
-![0](0.png)
+![1](1.png)
 
 ## Overview
 
@@ -28,7 +28,7 @@
 - 사용자 맞춤 알림
 - 게시글 요약 제공
 
-![1](1.png)
+![2](2.png)
 
 ## Tech Stack
 
@@ -49,7 +49,7 @@
 
 ## Architecture
 
-![2](2.png)
+![3](3.png)
 
 ## Contact
 
