@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Label } from "./ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
-export default function SummaryDialog({
-  content,
-  keywords,
-}: {
-  content: string;
-  keywords: string[];
-}) {
+export default function SummaryDialog({ content }: { content: string }) {
   const [open, setOpen] = useState(true);
 
   return (
@@ -24,15 +23,6 @@ export default function SummaryDialog({
             {content}
           </span>
         </div>
-
-        {keywords.length !== 0 && (
-          <div>
-            <Label className="text-base">키워드</Label>
-            <span className="text-xs font-normal text-muted-foreground break-all">
-              {keywords.join(", ")}
-            </span>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );

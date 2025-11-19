@@ -1,5 +1,5 @@
 import { getToken, onMessage } from "firebase/messaging";
-import { messaging } from "./firebase";
+import { messaging } from "@/lib/firebase";
 import { toast } from "sonner";
 
 export const getFCMToken = async () => {
@@ -18,17 +18,19 @@ export const getFCMToken = async () => {
 
 export function listenForegroundMessages() {
   onMessage(messaging, (payload) => {
-    toast.success(payload.data?.title, {
-      description: payload.data?.body,
+    if (!payload.data) {
+      return;
+    }
+
+    const data = payload.data;
+
+    toast.success(data.title, {
+      description: data.body,
       position: "top-center",
       action: {
         label: "이동하기",
         onClick: () => {
-          if (!payload.data?.link) {
-            return;
-          }
-
-          window.open(payload.data.link);
+          window.open(`${data.link}?token=${data.token}`);
         },
       },
     });

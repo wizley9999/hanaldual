@@ -2,16 +2,16 @@ import OpenAI from "openai";
 import axios from "axios";
 import { Env } from "../config/env.js";
 import { Logger } from "../core/logger.js";
-import { system_prompt } from "../config/constant.js";
+import { SytemPrompt } from "../config/constant.js";
 
 const client = new OpenAI({ apiKey: Env.OPENAI_API_KEY });
 
 export const OpenAIService = {
-  async analyzePost(post, keywords) {
+  async analyzePost(post) {
     const images = await this._prepareImages(post.images);
 
     const prompt = [
-      system_prompt(keywords),
+      SytemPrompt,
       {
         role: "user",
         content: [
@@ -37,12 +37,8 @@ export const OpenAIService = {
               type: "object",
               properties: {
                 summary: { type: "string" },
-                related_keywords: {
-                  type: "array",
-                  items: { type: "string" },
-                },
               },
-              required: ["summary", "related_keywords"],
+              required: ["summary"],
               additionalProperties: false,
             },
             strict: true,
@@ -53,12 +49,7 @@ export const OpenAIService = {
 
       const parsed = JSON.parse(res.output_text);
 
-      if (
-        !parsed ||
-        typeof parsed.summary !== "string" ||
-        !Array.isArray(parsed.related_keywords) ||
-        parsed.related_keywords.some((kw) => typeof kw !== "string")
-      ) {
+      if (!parsed || typeof parsed.summary !== "string") {
         throw new Error("Invalid JSON format");
       }
 

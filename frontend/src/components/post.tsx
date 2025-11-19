@@ -1,14 +1,15 @@
-import { useParams } from "react-router";
-import { Toaster } from "./ui/sonner";
 import { useEffect, useState } from "react";
-import { Timestamp, type DocumentData } from "firebase/firestore";
-import { getAnalysisDocData, updateUserData } from "@/lib/firestore";
-import { Spinner } from "./ui/spinner";
-import SummaryDialog from "./summary-dialog";
-import { auth } from "@/lib/firebase";
+import { useParams, useSearchParams } from "react-router";
+import { serverTimestamp, type DocumentData } from "firebase/firestore";
+import { Toaster } from "@/components/ui/sonner";
+import { Spinner } from "@/components/ui/spinner";
+import SummaryDialog from "@/components/summary-dialog";
+import { getAnalysisDocData, upsertUserData } from "@/lib/firestore";
 
 export default function Post() {
   const { analysisId } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -18,9 +19,9 @@ export default function Post() {
     const fetchData = async () => {
       try {
         if (!analysisId) {
-          setError(true);
-          return;
+          throw new Error("Missing analysis ID");
         }
+
         const data = await getAnalysisDocData(analysisId);
         setData(data);
       } catch {
@@ -31,15 +32,11 @@ export default function Post() {
     };
 
     const updateLastActive = async () => {
-      if (!auth.currentUser) {
+      if (!token) {
         return;
       }
 
-      await updateUserData(
-        auth.currentUser.uid,
-        "lastActiveAt",
-        Timestamp.fromDate(new Date())
-      );
+      await upsertUserData(token, "lastActiveAt", serverTimestamp());
     };
 
     fetchData();
@@ -58,7 +55,7 @@ export default function Post() {
     <>
       {error && (
         <div className="px-6 text-muted-foreground text-sm text-center flex flex-col min-h-dvh items-center justify-center">
-          <span>데이터를 불러오는 중에 오류가 발생했습니다.</span>
+          <span>데이터를 불러오는 중 오류가 발생했습니다.</span>
         </div>
       )}
 
@@ -66,10 +63,7 @@ export default function Post() {
         <>
           <iframe src={data.link} className="w-full h-screen" />
 
-          <SummaryDialog
-            content={data.content}
-            keywords={data.matchedKeywords}
-          />
+          <SummaryDialog content={data.content} />
         </>
       )}
 

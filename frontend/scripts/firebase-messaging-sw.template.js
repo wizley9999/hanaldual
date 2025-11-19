@@ -17,6 +17,7 @@ messaging.onBackgroundMessage((payload) => {
     body: body,
     data: {
       link: payload.data.link,
+      token: payload.data.token,
     },
   };
 
@@ -27,9 +28,9 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   const path = event.notification.data.link;
-  if (!path) return;
+  const token = event.notification.data.token;
 
-  const targetUrl = `${self.location.origin}${path}`;
+  const targetUrl = `${self.location.origin}${path}?token=${token}`;
 
   event.waitUntil(
     clients

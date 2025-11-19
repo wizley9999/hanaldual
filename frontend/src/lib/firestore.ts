@@ -1,62 +1,37 @@
-import type { UserCredential } from "firebase/auth";
+import { firestore } from "@/lib/firebase";
 import {
-  Timestamp,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
-  limit,
-  orderBy,
   query,
   setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
-import { firestore } from "./firebase";
-import { invalidateUserCache } from "./user-cache";
 
-export const signInAndSaveUser = async (userCredential: UserCredential) => {
-  const user = userCredential.user;
-  if (!user) {
-    throw new Error("No user returned from signInWithPopup");
+export const getUserData = async (token: string, field: string | string[]) => {
+  const usersRef = collection(firestore, "users");
+
+  const q = query(usersRef, where("token", "==", token));
+  const querySnap = await getDocs(q);
+
+  if (querySnap.empty) {
+    throw new Error(`No user found with token: ${token}`);
   }
 
-  const userDocRef = doc(firestore, "users", user.uid);
-  const userDocSnap = await getDoc(userDocRef);
+  const docSnap = querySnap.docs[0];
 
-  const now = Timestamp.fromDate(new Date());
-
-  if (userDocSnap.exists()) {
-    await updateDoc(userDocRef, {
-      lastLoginAt: now,
-    });
-  } else {
-    await setDoc(userDocRef, {
-      createdAt: now,
-      keywords: [],
-      lastActiveAt: now,
-      lastLoginAt: now,
-      received: [],
-      token: null,
-    });
-  }
-};
-
-export const getUserData = async (userId: string, field: string | string[]) => {
-  const userDocRef = doc(firestore, "users", userId);
-  const userDocSnap = await getDoc(userDocRef);
-
-  if (!userDocSnap.exists()) {
-    throw new Error("No user snapshot");
-  }
-
-  const userData = userDocSnap.data();
+  const userData: Record<string, any> = {
+    docId: docSnap.id,
+    ...docSnap.data(),
+  };
 
   if (typeof field === "string") {
-    return { [field]: userData[field] };
+    return { [field]: userData[field], docId: userData.docId };
   }
 
-  const result: Record<string, any> = {};
+  const result: Record<string, any> = { docId: userData.docId };
 
   field.forEach((key) => {
     if (key in userData) result[key] = userData[key];
@@ -65,72 +40,40 @@ export const getUserData = async (userId: string, field: string | string[]) => {
   return result;
 };
 
-export const updateUserData = async (
-  userId: string,
+export const upsertUserData = async (
+  token: string,
   field: string | Record<string, any>,
   value?: any
 ) => {
-  const validate = (key: string, val: any) => {
-    if (key === "token" && (val === null || val === "")) {
-      throw new Error("토큰 등록 중 오류가 발생했습니다.");
-    }
+  const usersRef = collection(firestore, "users");
+  const q = query(usersRef, where("token", "==", token));
+  const querySnap = await getDocs(q);
 
-    if (key === "keywords" && Array.isArray(val) && val.length > 10) {
-      throw new Error("키워드는 10개를 초과할 수 없습니다.");
-    }
-  };
+  const isEmpty = querySnap.empty;
+  const docRef = isEmpty ? doc(usersRef) : querySnap.docs[0].ref;
 
-  const userDocRef = doc(firestore, "users", userId);
+  let data: Record<string, any>;
 
   if (typeof field === "string") {
-    validate(field, value);
-    await updateDoc(userDocRef, { [field]: value });
-    invalidateUserCache(userId);
-    return { [field]: value };
+    data = { [field]: value };
+  } else {
+    data = { ...field };
   }
 
-  Object.entries(field).forEach(([key, val]) => validate(key, val));
-  await updateDoc(userDocRef, field);
-
-  invalidateUserCache(userId);
-  return field;
-};
-
-export const deleteUserDoc = async (userId: string) => {
-  const userDocRef = doc(firestore, "users", userId);
-  const userDocSnap = await getDoc(userDocRef);
-
-  if (!userDocSnap.exists()) {
-    throw new Error("No user snapshot");
+  if (isEmpty) {
+    await setDoc(docRef, {
+      token,
+      ...data,
+    });
+  } else {
+    await updateDoc(docRef, data);
   }
 
-  await deleteDoc(userDocRef);
-};
-
-export const getSavedKeywords = async (limitCount: number = 10) => {
-  const keywordsRef = collection(firestore, "keywords");
-  const q = query(keywordsRef, orderBy("count", "desc"), limit(limitCount));
-
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    return [];
-  }
-
-  const keywords = snapshot.docs.map((docSnap) => {
-    const data = docSnap.data();
-
-    const subs = data.subscribers;
-    const count = data.count;
-
-    return {
-      keyword: docSnap.id,
-      subscribers: subs,
-      count,
-    };
-  });
-
-  return keywords;
+  return {
+    docId: docRef.id,
+    token,
+    ...(typeof field === "string" ? { [field]: value } : field),
+  };
 };
 
 export const getAnalysisDocData = async (docId: string) => {
@@ -138,7 +81,7 @@ export const getAnalysisDocData = async (docId: string) => {
   const analysisDocSnap = await getDoc(analysisDocRef);
 
   if (!analysisDocSnap.exists()) {
-    throw new Error("No analysis snapshot");
+    throw new Error(`No analysis snapshot: ${docId}`);
   }
 
   return analysisDocSnap.data();

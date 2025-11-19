@@ -11,11 +11,7 @@ export const analyzePost = onDocumentCreated(
     const postRef = event.data.ref;
     const post = event.data.data();
 
-    const keywords = (await FirestoreService.getKeywords()).map(
-      (k) => k.keyword
-    );
-
-    const analysis = await OpenAIService.analyzePost(post, keywords);
+    const analysis = await OpenAIService.analyzePost(post);
 
     if (!analysis) {
       await FirestoreService.update(postRef, { status: "error" });
